@@ -4,3 +4,6 @@
 [submodule "Echarts"]
 	path = Echarts
 	url = https://github.com/lfuentes-xd/EchartFrontEnd
+[submodule "Reportes"]
+	path = Reportes
+	url = https://github.com/lfuentes-xd/ReportesMD
