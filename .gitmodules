@@ -1,0 +1,6 @@
+[submodule "GraficaPy"]
+	path = GraficaPy
+	url = https://github.com/lfuentes-xd/EchartsFlask
+[submodule "Echarts"]
+	path = Echarts
+	url = https://github.com/lfuentes-xd/EchartFrontEnd
