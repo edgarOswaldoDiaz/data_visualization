@@ -1,0 +1,19 @@
+{
+  "name": "mi-proyecto-echarts",
+  "version": "1.0.1",
+  "description": "Proyecto para visualizar datos estadísticos y geoespaciales utilizando ECharts optimizado para rendimiento y seguridad.",
+  "main": "main.js",
+  "scripts": {
+    "start": "http-server .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vanessa García Lara",
+  "license": "MIT",
+  "dependencies": {
+    "echarts": "^5.4.0",
+    "http-server": "^0.12.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
