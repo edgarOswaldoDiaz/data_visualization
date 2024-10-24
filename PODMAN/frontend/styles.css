@@ -1,0 +1,32 @@
+body {
+    background-color: #f8f9fa; /* Color de fondo suave */
+    font-family: 'Arial', sans-serif; /* Fuente moderna */
+}
+
+h1 {
+    color: #343a40; /* Color del título */
+}
+
+.container {
+    background-color: #ffffff; /* Fondo blanco para el contenedor */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 8px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    padding: 20px; /* Espaciado interno */
+}
+
+.chart {
+    width: 100%; /* Ancho completo para gráficos */
+    min-height: 400px; /* Altura mínima para gráficos */
+    border: 1px solid #dee2e6; /* Borde suave */
+    border-radius: 8px; /* Bordes redondeados para gráficos */
+   
+}
+
+.form-select {
+    border: 1px solid #ced4da; /* Borde del select */
+    border-radius: 4px; /* Bordes redondeados para el select */
+}
+
+.form-label {
+    font-weight: bold; /* Hacer la etiqueta más prominente */
+}
