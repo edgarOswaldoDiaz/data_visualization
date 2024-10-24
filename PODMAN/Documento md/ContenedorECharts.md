@@ -92,28 +92,28 @@ Al momento de haber finalizado con la instalación del npm, este creará el arch
     + **CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]**: este es el comando que se ejecuta cuando se inicia el contenedor. inicia el servidor Flask y lo hace accesible a través de la dirección IP 0.0.0.0 (lo que significa que puede recibir tráfico desde cualquier dirección) en el puerto 5000.
   
 #### Optimización del rendimiento backend
-    + **Minimización de tamaño con Alpine**: la imagen *Alpine* es mucho más ligera que otras distribuciones de Linux, lo que reduce el tamaño del contenedor y mejora los tiempos de descarga e inicio.
-    + **No caché en la instalación de dependencias**: La instrucción *pip install --no-cache-dir* evita el almacenamiuento en caché de los paquetes de Python, lo que reduce el tamaño del contenedor y evita que se acumulen archivos innecesarios.
-    + **Compresión de datos**: las imágenes de Alpine vienen con bibliotecas que suelen ser más eficaces en términos de almacenamiento, y muchas veces se utiliza una capa comprimida de las imágenes. Esto ayuda a minimizar el uso de espacio en disco.
-    + **Capas de construcción optimizadas**: al copiar primero solo el archivo *requirements.txt* y luego instalar las dependencias antes de copiar el resto de la aplicación, se optimiza el caché de las capas de Podman. Esto significa que si solo cambia el código fuente pero no las dependencias, Podman no volverá a instalar todas las dependencias, acelerando la reconstrucción del contenedor.
++ **Minimización de tamaño con Alpine**: la imagen *Alpine* es mucho más ligera que otras distribuciones de Linux, lo que reduce el tamaño del contenedor y mejora los tiempos de descarga e inicio.
++ **No caché en la instalación de dependencias**: La instrucción *pip install --no-cache-dir* evita el almacenamiuento en caché de los paquetes de Python, lo que reduce el tamaño del contenedor y evita que se acumulen archivos innecesarios.
++ **Compresión de datos**: las imágenes de Alpine vienen con bibliotecas que suelen ser más eficaces en términos de almacenamiento, y muchas veces se utiliza una capa comprimida de las imágenes. Esto ayuda a minimizar el uso de espacio en disco.
++ **Capas de construcción optimizadas**: al copiar primero solo el archivo *requirements.txt* y luego instalar las dependencias antes de copiar el resto de la aplicación, se optimiza el caché de las capas de Podman. Esto significa que si solo cambia el código fuente pero no las dependencias, Podman no volverá a instalar todas las dependencias, acelerando la reconstrucción del contenedor.
 
 #### Seguridad backend
-    + **Ejecución como usuario sin privilegios**: ejecutar el contenedor como el usuario *appuser* meora la seguridad al evitar que la aplicación tenga acceso a permisos elevados.
-    + **Restricción de permisos**: se aseguran los permisos correctos para que solo el usuario designado pueda acceder y ejecutar la aplicación en */app*.
++ **Ejecución como usuario sin privilegios**: ejecutar el contenedor como el usuario *appuser* meora la seguridad al evitar que la aplicación tenga acceso a permisos elevados.
++ **Restricción de permisos**: se aseguran los permisos correctos para que solo el usuario designado pueda acceder y ejecutar la aplicación en */app*.
 
 #### Pruebas de seguridad
 
-    1. **Verificación de usuario**: con el comando *podman exec -it IṔ-contenedor whoami* se busca verificar que el usuario sea appuser y no root, *podman exec* ejecuta un comando de un contenedor que ya esta en ejecución, *-it* son dos operaciones combinadas '-i' significa interactivo y este permite la entrada estándar del contenedor permanezca abierta y '-t' significa terminal, *IP-contenedor* se reemplaza por la IP del contenedor en ejecución y *whoami* devuelve el nombre del usuario actual que está ejecutando el proceso.
+1. **Verificación de usuario**: con el comando *podman exec -it IṔ-contenedor whoami* se busca verificar que el usuario sea appuser y no root, *podman exec* ejecuta un comando de un contenedor que ya esta en ejecución, *-it* son dos operaciones combinadas '-i' significa interactivo y este permite la entrada estándar del contenedor permanezca abierta y '-t' significa terminal, *IP-contenedor* se reemplaza por la IP del contenedor en ejecución y *whoami* devuelve el nombre del usuario actual que está ejecutando el proceso.
 
     ![whoami](img/whoami.jpeg "Verificación de usuario")
 
-    2. **Verificación de puertos abiertos**: con el comando *nmap -p- 127.0.0.1* se utiliza para escanear los puertos de la dirección IP local (localhost). *nmap* permite descubrir dispositivos en la red y sus servicios. *-p-* argumento para que nmap escanee todos los puertos en busca de servicios que estén escuchando.
+2. **Verificación de puertos abiertos**: con el comando *nmap -p- 127.0.0.1* se utiliza para escanear los puertos de la dirección IP local (localhost). *nmap* permite descubrir dispositivos en la red y sus servicios. *-p-* argumento para que nmap escanee todos los puertos en busca de servicios que estén escuchando.
 
     ![nmap](img/nmap.jpeg "Verificación de puertos abuiertos")
 
     Con esto podemos verificar que el puerto 5000 es el que solo esta abierto para que funcione la api Flask (el 631/tcp es para ipp, no se pudo cerrar).
 
-2. **Construcción del contenedor**: Se deberá ejecutar el siguiente comando en la terminal para construir el contenedor del backend.
+3. **Construcción del contenedor**: Se deberá ejecutar el siguiente comando en la terminal para construir el contenedor del backend.
 
     ```
     podman build -t flask-api -f Dockerfile.backend .
@@ -263,16 +263,16 @@ Omitiendo el archivo py donde se genera la API y el archivo json (los cuales se 
 #### requirements.txt
 Contiene las dependencias necesarias para el backend.
 
-    ```
+```
     Flask==2.2.3
     Flask-Cors==3.0.10
     Flask-Compress==1.13
     Werkzeug==2.3.2
-    ```
+```
 #### app.py
-Contiene las dependencias necesarias para el backend.
+Contiene la configuración de una API ustilizando *Flask* con algunas mejoras para manejar la compresión de respuestas y el control de origen cruzado (CORS).
 
-    ```
+```
     from flask import Flask, jsonify
     from flask_cors import CORS
     from flask_compress import Compress
@@ -307,8 +307,27 @@ Contiene las dependencias necesarias para el backend.
 
     if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5000, debug=False)
- 
-    ```
+```
+1. ***Importaciones***:
+
+    + **Flask** para crear la API.
+    + **CORS** para permitir solicitudes desde otros dominios.
+    Flask-Compress para habilitar la compresión de las respuestas usando gzip, mejorando el rendimientos al reducir el tamaño de los datos enviados.
+    + **JSON** para manejar archivos de datos en formato JSON.
+
+2. ***Configuración del servidor***:
+
+    + Se establece un limite de tamaño máximo para los datos recibidos (16MB).
+    + Se configura el nivel de compresión para equilibrar velocidad y tamaño.
+    + Se habilita CORS, permitiendo que el frontend haga solicitudes a la API.
+
+3. ***Ruta de la API***:
+    + La ruta */apartamentos* devuelve los datos del archivo *apartamentos.json* en formato JSON.
+    + SI el archivo no existe, o si el formato JSON es incorrecto, se devuelven errores apropiados.
+
+4. ***Ejecución***:
+    + EL servidor Flask se ejecuta 0.0.0.0 en el puesto 5000, lo que permite conexiones desde cualquier dirección IP, y se desactiva el modo de depuración.
+
 #### apartamentos.json
 Archivo JSON con todos los datos de los apartamentos.
 
