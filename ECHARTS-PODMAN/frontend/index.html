@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualización de Datos</title>
+  <!-- Vincula Bootstrap para mejorar el diseño -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Vincula el archivo CSS -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Vincula ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Contenedor principal -->
+  <div class="container my-4">
+    <h1 class="text-center mb-4">Visualización de Datos de Apartamentos</h1>
+
+    <!-- Sección de carga de archivo -->
+    <div class="mb-3">
+      <label for="file-input" class="form-label">Seleccionar archivo (JSON/Parquet):</label>
+      <input type="file" id="file-input" class="form-control" accept=".json, .parquet">
+    </div>
+
+    <!-- Sección de selección de campo para filtrar los datos -->
+    <div class="mb-3">
+      <label for="data-select" class="form-label">Seleccionar campo para visualizar:</label>
+      <select id="data-select" class="form-select" disabled>
+        <option value="">Seleccione un campo</option>
+        <!-- Opciones dinámicas se llenarán con JS -->
+      </select>
+    </div>
+
+    <!-- Contenedor para los gráficos -->
+    <div class="row">
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="chart" id="chart1"></div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="chart" id="chart2"></div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="chart" id="chart3"></div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="chart" id="chart4"></div>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="chart" id="chart5"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Vincula el archivo JS que contiene la lógica -->
+  <script src="main.js"></script>
+  <!-- Vincula Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
