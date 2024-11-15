@@ -1,14 +1,45 @@
+# Fase de construcción del frontend
 FROM node:20-alpine AS frontend
 WORKDIR /app
-COPY ./frontend/package*.json ./
-RUN npm ci --no-optional
-COPY ./frontend /app
+
+# Copia package.json y package-lock.json para instalar dependencias
+COPY ./package*.json ./
+
+# Instala todas las dependencias, incluidas las de desarrollo
+RUN npm install --no-optional
+
+# Copia el resto de los archivos del frontend
+COPY ./frontend /app/frontend
+COPY webpack.config.js /app/webpack.config.js
+
+# Ejecuta el comando de construcción
 RUN npm run build
-FROM docker.io/library/nginx:alpine AS production
-RUN apk add --no-cache libcap
-RUN adduser -D -g 'nginx' nginxuser
+
+# Verifica los archivos después de la construcción (puedes eliminarlo después de depurar)
+RUN ls -R /app/dist
+
+# Fase de producción usando Nginx para servir los archivos estáticos
+FROM nginx:alpine AS production
+
+# Agrega un usuario no root
+RUN apk add --no-cache libcap && \
+    adduser -D -g 'nginx' nginxuser
+
+# Copia los archivos generados en la fase de construcción al directorio de Nginx
 COPY --from=frontend /app/dist /usr/share/nginx/html
-RUN chown -R nginxuser:nginxuser /usr/share/nginx/html
-RUN setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+
+# Copia la configuración personalizada de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Verifica los archivos en /etc/nginx y /usr/share/nginx/html para asegurarte que todo esté bien copiado
+RUN ls -R /etc/nginx/ && ls -R /usr/share/nginx/html/
+
+# Configura permisos y establece Nginx en puertos no restringidos
+RUN chown -R nginxuser:nginxuser /usr/share/nginx/html && \
+    setcap 'cap_net_bind_service=+ep' /usr/sbin/nginx
+
+# Exponer el puerto 80 para Nginx
 EXPOSE 80
+
+# Comando de inicio de Nginx
 CMD ["nginx", "-g", "daemon off;"]
