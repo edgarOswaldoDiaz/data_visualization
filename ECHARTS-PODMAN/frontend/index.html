@@ -25,31 +25,56 @@
       <input type="file" id="file-input" class="form-control" accept=".json, .parquet">
     </div>
 
-    <!-- Sección de selección de campo para filtrar los datos -->
+    <!-- Sección para seleccionar los campos de los ejes X e Y -->
     <div class="mb-3">
-      <label for="data-select" class="form-label">Seleccionar campo para visualizar:</label>
-      <select id="data-select" class="form-select" disabled>
-        <option value="">Seleccione un campo</option>
-        <!-- Opciones dinámicas se llenarán con JS -->
+      <label for="x-select" class="form-label">Seleccionar campo para el eje X:</label>
+      <select id="x-field-select" class="form-select" disabled>
+        <option value="">Seleccione un campo para el eje X</option>
+        <!-- Opciones de campos para el eje X -->
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="y-select" class="form-label">Seleccionar campo para el eje Y:</label>
+      <select id="y-field-select" class="form-select" disabled>
+        <option value="">Seleccione un campo para el eje Y</option>
+        <!-- Opciones de campos para el eje Y -->
+      </select>
+    </div>
+
+    <!-- Sección de selección del tipo de gráfica -->
+    <div class="mb-3">
+      <label for="chart-type-select" class="form-label">Seleccionar tipo de gráfica:</label>
+      <select id="chart-type-select" disabled>
+        <option value="bar">Gráfico de Barras</option>
+        <option value="line">Gráfico de Líneas</option>
+        <option value="scatter">Gráfico de Dispersión</option>
+        <option value="donut">Gráfico de Dona</option>
+        <option value="boxplot">Gráfico de Caja</option>
+        <option value="stackedBar">Gráfico de Barras Apiladas</option>
+        <option value="stackedLine">Gráfico de Líneas Apiladas</option>
+        <option value="radar">Gráfico de Radar</option>
+        <option value="geoMap">Gráfico de Mapa</option>
       </select>
     </div>
 
     <!-- Contenedor para los gráficos -->
-    <div class="row">
+    <div id="graph-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
+      <!-- Secciones de los gráficos -->
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart1"></div>
+        <div class="chart" id="chart1" style="height: 400px;"></div>
       </div>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart2"></div>
+        <div class="chart" id="chart2" style="height: 400px;"></div>
       </div>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart3"></div>
+        <div class="chart" id="chart3" style="height: 400px;"></div>
       </div>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart4"></div>
+        <div class="chart" id="chart4" style="height: 400px;"></div>
       </div>
       <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart5"></div>
+        <div class="chart" id="chart5" style="height: 400px;"></div>
       </div>
     </div>
 

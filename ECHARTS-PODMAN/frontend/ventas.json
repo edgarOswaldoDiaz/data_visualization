@@ -1,0 +1,82 @@
+[
+  { "id": 1, "producto": "Producto A", "categoria": "Electrónica", "precio": 150, "unidades_vendidas": 120, "fecha": "2024-01-01" },
+  { "id": 2, "producto": "Producto B", "categoria": "Electrónica", "precio": 200, "unidades_vendidas": 95, "fecha": "2024-01-02" },
+  { "id": 3, "producto": "Producto C", "categoria": "Hogar", "precio": 45, "unidades_vendidas": 150, "fecha": "2024-01-03" },
+  { "id": 4, "producto": "Producto D", "categoria": "Hogar", "precio": 60, "unidades_vendidas": 80, "fecha": "2024-01-04" },
+  { "id": 5, "producto": "Producto E", "categoria": "Ropa", "precio": 35, "unidades_vendidas": 200, "fecha": "2024-01-05" },
+  { "id": 6, "producto": "Producto F", "categoria": "Ropa", "precio": 80, "unidades_vendidas": 150, "fecha": "2024-01-06" },
+  { "id": 7, "producto": "Producto G", "categoria": "Deportes", "precio": 120, "unidades_vendidas": 50, "fecha": "2024-01-07" },
+  { "id": 8, "producto": "Producto H", "categoria": "Deportes", "precio": 250, "unidades_vendidas": 60, "fecha": "2024-01-08" },
+  { "id": 9, "producto": "Producto I", "categoria": "Alimentos", "precio": 25, "unidades_vendidas": 300, "fecha": "2024-01-09" },
+  { "id": 10, "producto": "Producto J", "categoria": "Alimentos", "precio": 15, "unidades_vendidas": 400, "fecha": "2024-01-10" },
+  { "id": 11, "producto": "Producto K", "categoria": "Electrónica", "precio": 350, "unidades_vendidas": 85, "fecha": "2024-01-11" },
+  { "id": 12, "producto": "Producto L", "categoria": "Electrónica", "precio": 90, "unidades_vendidas": 110, "fecha": "2024-01-12" },
+  { "id": 13, "producto": "Producto M", "categoria": "Hogar", "precio": 120, "unidades_vendidas": 130, "fecha": "2024-01-13" },
+  { "id": 14, "producto": "Producto N", "categoria": "Hogar", "precio": 80, "unidades_vendidas": 100, "fecha": "2024-01-14" },
+  { "id": 15, "producto": "Producto O", "categoria": "Ropa", "precio": 45, "unidades_vendidas": 180, "fecha": "2024-01-15" },
+  { "id": 16, "producto": "Producto P", "categoria": "Ropa", "precio": 95, "unidades_vendidas": 160, "fecha": "2024-01-16" },
+  { "id": 17, "producto": "Producto Q", "categoria": "Deportes", "precio": 150, "unidades_vendidas": 75, "fecha": "2024-01-17" },
+  { "id": 18, "producto": "Producto R", "categoria": "Deportes", "precio": 200, "unidades_vendidas": 40, "fecha": "2024-01-18" },
+  { "id": 19, "producto": "Producto S", "categoria": "Alimentos", "precio": 30, "unidades_vendidas": 500, "fecha": "2024-01-19" },
+  { "id": 20, "producto": "Producto T", "categoria": "Alimentos", "precio": 50, "unidades_vendidas": 350, "fecha": "2024-01-20" },
+  {
+    "id": 21, "producto": "Producto U", "categoria": "Electrónica", "precio": 120, "unidades_vendidas": 95, "fecha": "2024-01-21"
+  },
+  {
+    "id": 22, "producto": "Producto V", "categoria": "Electrónica", "precio": 160, "unidades_vendidas": 120, "fecha": "2024-01-22"
+  },
+  {
+    "id": 23, "producto": "Producto W", "categoria": "Hogar", "precio": 110, "unidades_vendidas": 160, "fecha": "2024-01-23"
+  },
+  {
+    "id": 24, "producto": "Producto X", "categoria": "Hogar", "precio": 70, "unidades_vendidas": 85, "fecha": "2024-01-24"
+  },
+  {
+    "id": 25, "producto": "Producto Y", "categoria": "Ropa", "precio": 30, "unidades_vendidas": 230, "fecha": "2024-01-25"
+  },
+  {
+    "id": 26, "producto": "Producto Z", "categoria": "Ropa", "precio": 110, "unidades_vendidas": 160, "fecha": "2024-01-26"
+  },
+  {
+    "id": 27, "producto": "Producto AA", "categoria": "Deportes", "precio": 180, "unidades_vendidas": 40, "fecha": "2024-01-27"
+  },
+  {
+    "id": 28, "producto": "Producto AB", "categoria": "Deportes", "precio": 250, "unidades_vendidas": 70, "fecha": "2024-01-28"
+  },
+  {
+    "id": 29, "producto": "Producto AC", "categoria": "Alimentos", "precio": 40, "unidades_vendidas": 320, "fecha": "2024-01-29"
+  },
+  {
+    "id": 30, "producto": "Producto AD", "categoria": "Alimentos", "precio": 20, "unidades_vendidas": 480, "fecha": "2024-01-30"
+  },
+  {
+    "id": 31, "producto": "Producto AE", "categoria": "Electrónica", "precio": 230, "unidades_vendidas": 100, "fecha": "2024-01-31"
+  },
+  {
+    "id": 32, "producto": "Producto AF", "categoria": "Electrónica", "precio": 190, "unidades_vendidas": 85, "fecha": "2024-02-01"
+  },
+  {
+    "id": 33, "producto": "Producto AG", "categoria": "Hogar", "precio": 75, "unidades_vendidas": 130, "fecha": "2024-02-02"
+  },
+  {
+    "id": 34, "producto": "Producto AH", "categoria": "Hogar", "precio": 55, "unidades_vendidas": 90, "fecha": "2024-02-03"
+  },
+  {
+    "id": 35, "producto": "Producto AI", "categoria": "Ropa", "precio": 40, "unidades_vendidas": 210, "fecha": "2024-02-04"
+  },
+  {
+    "id": 36, "producto": "Producto AJ", "categoria": "Ropa", "precio": 70, "unidades_vendidas": 170, "fecha": "2024-02-05"
+  },
+  {
+    "id": 37, "producto": "Producto AK", "categoria": "Deportes", "precio": 130, "unidades_vendidas": 55, "fecha": "2024-02-06"
+  },
+  {
+    "id": 38, "producto": "Producto AL", "categoria": "Deportes", "precio": 220, "unidades_vendidas": 65, "fecha": "2024-02-07"
+  },
+  {
+    "id": 39, "producto": "Producto AM", "categoria": "Alimentos", "precio": 25, "unidades_vendidas": 350, "fecha": "2024-02-08"
+  },
+  {
+    "id": 40, "producto": "Producto AN", "categoria": "Alimentos", "precio": 18, "unidades_vendidas": 420, "fecha": "2024-02-09"
+  }
+]

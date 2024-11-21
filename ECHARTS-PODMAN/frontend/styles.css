@@ -26,8 +26,9 @@ h1 {
     margin-bottom: 20px;
 }
 
-.form-select, 
-#data-select {
+.form-select,
+#data-select,
+#chart-type-select {
     border: 1px solid #ced4da;
     border-radius: 8px;
     padding: 12px 16px;
@@ -42,8 +43,9 @@ h1 {
     font-size: 1.1rem;
 }
 
-.form-select:focus, 
-#data-select:focus {
+.form-select:focus,
+#data-select:focus,
+#chart-type-select:focus {
     border-color: #0056b3;
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
     outline: none;
@@ -52,16 +54,5 @@ h1 {
 .form-label {
     font-weight: bold;
     margin-bottom: 10px;
-    font-size: 1.1rem;
-    color: #343a40;
-}
-
-@media (max-width: 768px) {
-    .chart {
-        min-height: 300px;
-    }
-
-    .container {
-        width: 95%;
-    }
+    display: inline-block;
 }
