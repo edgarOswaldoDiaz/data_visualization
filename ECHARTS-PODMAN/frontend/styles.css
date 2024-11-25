@@ -20,10 +20,13 @@ h1 {
 
 .chart {
     width: 100%;
-    min-height: 400px;
+    height: 600px; 
     border: 1px solid #dee2e6;
     border-radius: 8px;
     margin-bottom: 20px;
+    position: relative;
+
+      
 }
 
 .form-select,
@@ -55,4 +58,58 @@ h1 {
     font-weight: bold;
     margin-bottom: 10px;
     display: inline-block;
+}
+
+#graph-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+#point-select {
+    display: none;
+  }
+  .edit-container {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.edit-container h2 {
+    font-size: 1.5rem;
+    color: #343a40;
+    margin-bottom: 20px;
+}
+
+.edit-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-section label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-control-color {
+    height: 40px;
+    padding: 0;
+}
+
+button.btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+button.btn-primary:hover {
+    background-color: #004085;
+}
+
+button.btn-secondary:hover {
+    background-color: #5a6268;
 }

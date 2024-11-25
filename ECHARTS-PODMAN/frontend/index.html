@@ -1,48 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visualización de Datos</title>
-  <!-- Vincula Bootstrap para mejorar el diseño -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Vincula el archivo CSS -->
-  <link rel="stylesheet" href="styles.css">
-  <!-- Vincula ECharts -->
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
-</head>
-
-<body>
-
-  <!-- Contenedor principal -->
-  <div class="container my-4">
-    <h1 class="text-center mb-4">Visualización de Datos de Apartamentos</h1>
-
-    <!-- Sección de carga de archivo -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Datos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  </head>
+  <body>
+    <div class="container my-4">
+      <h1 class="text-center mb-4">Visualización de Datos de Apartamentos</h1>
+      <div class="mb-3">
+        <label for="file-input" class="form-label">Seleccionar archivo (JSON/Parquet):</label>
+        <input type="file" id="file-input" class="form-control" accept=".json, .parquet">
+      </div>
     <div class="mb-3">
-      <label for="file-input" class="form-label">Seleccionar archivo (JSON/Parquet):</label>
-      <input type="file" id="file-input" class="form-control" accept=".json, .parquet">
+      <label for="field-checklist" class="form-label">Seleccionar campos para graficar:</label>
+      <div id="field-checklist" class="form-check"></div>
     </div>
-
-    <!-- Sección para seleccionar los campos de los ejes X e Y -->
-    <div class="mb-3">
-      <label for="x-select" class="form-label">Seleccionar campo para el eje X:</label>
-      <select id="x-field-select" class="form-select" disabled>
-        <option value="">Seleccione un campo para el eje X</option>
-        <!-- Opciones de campos para el eje X -->
-      </select>
-    </div>
-
-    <div class="mb-3">
-      <label for="y-select" class="form-label">Seleccionar campo para el eje Y:</label>
-      <select id="y-field-select" class="form-select" disabled>
-        <option value="">Seleccione un campo para el eje Y</option>
-        <!-- Opciones de campos para el eje Y -->
-      </select>
-    </div>
-
-    <!-- Sección de selección del tipo de gráfica -->
     <div class="mb-3">
       <label for="chart-type-select" class="form-label">Seleccionar tipo de gráfica:</label>
       <select id="chart-type-select" disabled>
@@ -57,34 +33,43 @@
         <option value="geoMap">Gráfico de Mapa</option>
       </select>
     </div>
-
-    <!-- Contenedor para los gráficos -->
-    <div id="graph-container" style="display: flex; flex-wrap: wrap; gap: 20px;">
-      <!-- Secciones de los gráficos -->
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart1" style="height: 400px;"></div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart2" style="height: 400px;"></div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart3" style="height: 400px;"></div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart4" style="height: 400px;"></div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="chart" id="chart5" style="height: 400px;"></div>
+    <div id="graph-container" class="row">
+      <div class="col-12 mb-4">
+        <div class="chart" id="chart1"></div>
       </div>
     </div>
-
-  </div>
-
-  <!-- Vincula el archivo JS que contiene la lógica -->
-  <script src="main.js"></script>
-  <!-- Vincula Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-
+    <!-- Formulario para editar opciones del gráfico -->
+    <div id="chart-container" class="edit-container mt-4" style="display: none;">
+      <h2 class="text-center">Editar Opciones del Gráfico</h2>
+      <div class="mb-3">
+        <label for="edit-options" class="form-label">Seleccionar opción de edición:</label>
+        <select id="edit-options" class="form-select">
+          <option value="title">Título</option>
+          <option value="color">Color</option>
+        </select>
+      </div>
+      <!-- Sección para editar el título -->
+      <div id="title-edit" class="edit-section mb-3" style="display: none;">
+        <label for="new-title" class="form-label">Nuevo Título:</label>
+        <input type="text" id="new-title" class="form-control" placeholder="Ingrese el nuevo título">
+      </div>
+      <!-- Sección para editar el color -->
+      <div id="color-edit" class="edit-section mb-3" style="display: none;">
+        <label for="point-select" class="form-label">Seleccione el punto:</label>
+        <select id="point-select" class="form-select"></select>
+        <label for="new-color" class="form-label mt-3">Nuevo color:</label>
+        <input type="color" id="new-color" class="form-control form-control-color">
+      </div>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-primary" onclick="saveChanges()">Guardar</button>
+        <button class="btn btn-secondary" onclick="closeEditForm()">Cancelar</button>
+      </div>
+    </div>
+    <!-- ECHARTS -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <!-- MAIN.JS -->
+    <script src="main.js"></script>
+    <!-- BOOTSTRAP -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
