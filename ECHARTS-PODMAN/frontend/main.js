@@ -258,7 +258,7 @@ const renderChart = (chartType, fields = selectedFields) => {
   tooltip.style.borderRadius = '4px';
   tooltip.style.fontSize = '12px';
   tooltip.style.whiteSpace = 'nowrap';
-  tooltip.style.top = '15px'; // Posiciona encima del ícono
+  tooltip.style.top = '15px';
   tooltip.style.right = '0';
   tooltip.style.visibility = 'hidden'; // Oculta inicialmente
   tooltip.style.opacity = '0';
