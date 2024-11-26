@@ -188,9 +188,18 @@ const renderChart = (chartType, fields = selectedFields) => {
 
   option.toolbox = {
     feature: {
-      restore: {},
-      saveAsImage: {},
-      dataView: {}
+      restore: {
+        title: "Restaurar"
+      },
+      saveAsImage: {
+        title: "Guardar como imagen",
+        type: "png"
+      },
+      dataView: {
+        title: "Visualizar datos",
+        lang: ['Vista de Datos', 'Cerrar', 'Actualizar'],
+        readOnly: true
+      }
     }
   };
   option.selectedMode = 'single'; 
@@ -241,45 +250,48 @@ const renderChart = (chartType, fields = selectedFields) => {
   myChart.setOption(option);
 
   const editIconWrapper = document.createElement('div');
-  editIconWrapper.style.position = 'absolute';
-  editIconWrapper.style.top = '30px';
-  editIconWrapper.style.right = '5px';
-  editIconWrapper.style.cursor = 'pointer';
-  
-  const editIcon = document.createElement('i');
-  editIcon.className = 'fas fa-edit';
-  
-  // Crear etiqueta flotante
-  const tooltip = document.createElement('span');
-  tooltip.textContent = 'Editar';
-  tooltip.style.position = 'absolute';
-  tooltip.style.color = 'blue';
-  tooltip.style.padding = '5px';
-  tooltip.style.borderRadius = '4px';
-  tooltip.style.fontSize = '12px';
-  tooltip.style.whiteSpace = 'nowrap';
-  tooltip.style.top = '15px';
-  tooltip.style.right = '0';
-  tooltip.style.visibility = 'hidden'; // Oculta inicialmente
+editIconWrapper.style.position = 'absolute';
+editIconWrapper.style.top = '30px';
+editIconWrapper.style.right = '5px';
+editIconWrapper.style.cursor = 'pointer';
+
+// Estilo para el ícono
+const editIcon = document.createElement('i');
+editIcon.className = 'fas fa-edit';
+editIcon.style.color = 'gray'; // Color consistente con los íconos "feature"
+
+const tooltip = document.createElement('span');
+tooltip.textContent = 'Editar';
+tooltip.style.position = 'absolute';
+tooltip.style.color = ' #61e4e6'; 
+tooltip.style.backgroundColor = 'white';
+tooltip.style.padding = '5px';
+tooltip.style.borderRadius = '4px';
+tooltip.style.fontSize = '12px';
+tooltip.style.whiteSpace = 'nowrap';
+tooltip.style.top = '15px';
+tooltip.style.right = '0';
+tooltip.style.visibility = 'hidden';
+tooltip.style.opacity = '0';
+tooltip.style.transition = 'visibility 0s, opacity 0.3s ease-in-out';
+
+editIconWrapper.addEventListener('mouseenter', () => {
+  tooltip.style.visibility = 'visible';
+  tooltip.style.opacity = '1';
+});
+editIconWrapper.addEventListener('mouseleave', () => {
+  tooltip.style.visibility = 'hidden';
   tooltip.style.opacity = '0';
-  tooltip.style.transition = 'visibility 0s, opacity 0.3s';
-  
-  editIconWrapper.addEventListener('mouseenter', () => {
-    tooltip.style.visibility = 'visible';
-    tooltip.style.opacity = '1';
-  });
-  editIconWrapper.addEventListener('mouseleave', () => {
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.opacity = '0';
-  });
-  
-  editIconWrapper.appendChild(editIcon);
-  editIconWrapper.appendChild(tooltip);
-  editIcon.addEventListener('click', () => {
-    showEditForm(chartDom.id);
-  });
-  
-  chartDom.appendChild(editIconWrapper);
+});
+
+editIconWrapper.appendChild(editIcon);
+editIconWrapper.appendChild(tooltip);
+editIcon.addEventListener('click', () => {
+  showEditForm(chartDom.id);
+});
+
+chartDom.appendChild(editIconWrapper);
+
   
 };
 
@@ -470,7 +482,5 @@ const getOptionGeoMap = (data) => {
     }]
   };
 };
-
-
 
 document.getElementById('file-input').addEventListener('change', handleFileSelect);
