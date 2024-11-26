@@ -189,59 +189,98 @@ const renderChart = (chartType, fields = selectedFields) => {
   option.toolbox = {
     feature: {
       restore: {},
-      saveAsImage: {}
+      saveAsImage: {},
+      dataView: {}
     }
   };
   option.selectedMode = 'single'; 
 
-myChart.on('select', (params) => {
-  console.log('Evento de selección detectado');
-  console.log('Parámetros recibidos:', params);
-
-  const seriesIndex = params.seriesIndex;
-  const dataIndexInside = params.dataIndexInside;
-
-  if (seriesIndex !== undefined && dataIndexInside !== undefined) {
-    const selectedItem = myChart.getOption().series[seriesIndex].data[dataIndexInside];
-
-    if (selectedItem) {
-      console.log('Punto seleccionado:', selectedItem); //Para debuggear 
-      const currentColor = selectedItem.itemStyle && selectedItem.itemStyle.color ? selectedItem.itemStyle.color : "#FF5733";
-      console.log('Color actual del punto:', currentColor); //Para debuggear 
-      document.getElementById("new-color").value = currentColor;
-      document.getElementById("color-edit").style.display = "block";
-      const dropdown = document.getElementById("point-select");
-      dropdown.innerHTML = ''; 
-      myChart.getOption().series[seriesIndex].data.forEach((item, index) => {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = `Punto ${index + 1} (X: ${item.value[0]}, Y: ${item.value[1]})`;
-        dropdown.appendChild(option);
-      });
-      window.selectedSeriesIndex = seriesIndex;
-      window.selectedDataIndex = dataIndexInside;
-      dropdown.value = dataIndexInside;
-    } else {
-      console.log('No se pudo encontrar el punto seleccionado.');
+  myChart.on('select', (params) => {
+    const selectedOption = document.getElementById("edit-options").value;
+  
+    if (selectedOption !== "color") {
+      console.log('La edición de color no está activa. Ignorando la selección de punto.');
+      return;
     }
-  } else {
-    console.log('Índice de serie o datos no válidos.');
-  }
-});
+  
+    console.log('Evento de selección detectado');
+    console.log('Parámetros recibidos:', params);
+  
+    const seriesIndex = params.seriesIndex;
+    const dataIndexInside = params.dataIndexInside;
+  
+    if (seriesIndex !== undefined && dataIndexInside !== undefined) {
+      const selectedItem = myChart.getOption().series[seriesIndex].data[dataIndexInside];
+  
+      if (selectedItem) {
+        console.log('Punto seleccionado:', selectedItem);
+        const currentColor = selectedItem.itemStyle && selectedItem.itemStyle.color ? selectedItem.itemStyle.color : "#FF5733";
+        console.log('Color actual del punto:', currentColor);
+        document.getElementById("new-color").value = currentColor;
+        document.getElementById("color-edit").style.display = "block";
+        const dropdown = document.getElementById("point-select");
+        dropdown.innerHTML = '';
+        myChart.getOption().series[seriesIndex].data.forEach((item, index) => {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = `Punto ${index + 1} (X: ${item.value[0]}, Y: ${item.value[1]})`;
+          dropdown.appendChild(option);
+        });
+        window.selectedSeriesIndex = seriesIndex;
+        window.selectedDataIndex = dataIndexInside;
+        dropdown.value = dataIndexInside;
+      } else {
+        console.log('No se pudo encontrar el punto seleccionado.');
+      }
+    } else {
+      console.log('Índice de serie o datos no válidos.');
+    }
+  });
+ 
 
   myChart.setOption(option);
 
+  const editIconWrapper = document.createElement('div');
+  editIconWrapper.style.position = 'absolute';
+  editIconWrapper.style.top = '30px';
+  editIconWrapper.style.right = '5px';
+  editIconWrapper.style.cursor = 'pointer';
+  
   const editIcon = document.createElement('i');
   editIcon.className = 'fas fa-edit';
-  editIcon.style.position = 'absolute';
-  editIcon.style.top = '10px';
-  editIcon.style.right = '10px';
-  editIcon.style.cursor = 'pointer';
+  
+  // Crear etiqueta flotante
+  const tooltip = document.createElement('span');
+  tooltip.textContent = 'Editar';
+  tooltip.style.position = 'absolute';
+  tooltip.style.color = 'blue';
+  tooltip.style.padding = '5px';
+  tooltip.style.borderRadius = '4px';
+  tooltip.style.fontSize = '12px';
+  tooltip.style.whiteSpace = 'nowrap';
+  tooltip.style.top = '15px'; // Posiciona encima del ícono
+  tooltip.style.right = '0';
+  tooltip.style.visibility = 'hidden'; // Oculta inicialmente
+  tooltip.style.opacity = '0';
+  tooltip.style.transition = 'visibility 0s, opacity 0.3s';
+  
+  editIconWrapper.addEventListener('mouseenter', () => {
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+  });
+  editIconWrapper.addEventListener('mouseleave', () => {
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.opacity = '0';
+  });
+  
+  editIconWrapper.appendChild(editIcon);
+  editIconWrapper.appendChild(tooltip);
   editIcon.addEventListener('click', () => {
     showEditForm(chartDom.id);
   });
-
-  chartDom.appendChild(editIcon);
+  
+  chartDom.appendChild(editIconWrapper);
+  
 };
 
 const getOptionScatter = (data, xField, yField) => {
