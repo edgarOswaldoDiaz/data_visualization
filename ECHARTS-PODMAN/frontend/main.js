@@ -3,17 +3,29 @@ let availableFields = []; // Campos disponibles para graficar
 let selectedFields = []; // Campos seleccionados para graficar
 
 const analyzeDataForGraphing = (data) => {
-  const fields = Object.keys(data[0] || {});
-  return fields.filter((field) => {
-    const uniqueValues = new Set(data.map(item => item[field]));
-    const uniqueCount = uniqueValues.size;
+  if (!Array.isArray(data)) {
+    console.error('Los datos no están en formato de arreglo');
+    return [];
+  }
 
-    if (uniqueCount === data.length) return false; 
-    if (typeof data[0][field] === 'number') return true; 
-    if (uniqueCount < Math.min(data.length / 2, 20)) return true;
-    return false;
-  });
+  const extractNestedFields = (obj, prefix = '') => {
+    const fields = [];
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        fields.push(...extractNestedFields(obj[key], `${prefix}${key}.`));
+      } else {
+        fields.push(`${prefix}${key}`);
+      }
+    }
+    return fields;
+  };
+
+  // Asegurarse de que data es un arreglo
+  const fields = data.flatMap(item => extractNestedFields(item));
+  return [...new Set(fields)];
 };
+
+
 
 const handleFileSelect = async (event) => {
   const file = event.target.files[0];
@@ -39,15 +51,33 @@ const handleFileSelect = async (event) => {
 
     if (!response.ok) throw new Error('Error al cargar el archivo.');
     const data = await response.json();
-    selectedData = data;
-    availableFields = analyzeDataForGraphing(data);
-    updateFieldChecklist();
-    document.getElementById('chart-type-select').disabled = false;
+
+    // Verificación de 'nodes' y 'links' en los datos
+    if (data.nodes && data.links) {
+      selectedData = data;
+      const nodes = data.nodes;
+      const links = data.links;
+
+      // Procesar los datos cuando 'nodes' y 'links' están presentes
+      availableFields = analyzeDataForGraphing(nodes, links);
+      updateFieldChecklist();
+      document.getElementById('chart-type-select').disabled = false;
+    } else {
+      // Si el archivo no contiene 'nodes' y 'links', se procesa de otra manera
+      console.log('El archivo no contiene los campos "nodes" y "links".', data);
+      
+      // Aquí puedes implementar una lógica para manejar los datos que no tienen 'nodes' y 'links'
+      selectedData = data;  // Procesa el archivo tal como está
+      availableFields = analyzeDataForGraphing(data);  // Analiza los datos de manera alternativa
+      updateFieldChecklist();
+      document.getElementById('chart-type-select').disabled = false;
+    }
   } catch (error) {
     console.error('Error al procesar los datos:', error);
     alert('Hubo un problema al cargar el archivo.');
   }
 };
+
 
 // Manejar el cambio de opción en el menú de edición
 document.getElementById("edit-options").addEventListener("change", (event) => {
@@ -180,6 +210,9 @@ const renderChart = (chartType, fields = selectedFields) => {
       break;
     case 'radar':
       option = getOptionRadarChart(selectedData);
+      break;
+    case 'les-miserables': // Nuevo caso para Les Misérables
+      renderLesMiserablesGraph();
       break;
     default:
       alert('Selecciona un tipo de gráfica válido.');
@@ -482,5 +515,77 @@ const getOptionGeoMap = (data) => {
     }]
   };
 };
+
+const renderLesMiserablesGraph = () => {
+  // Verifica los datos cargados
+  console.log('Datos seleccionados:', selectedData);
+
+  if (!selectedData || !selectedData.nodes || !selectedData.links) {
+    alert('El archivo JSON debe contener los campos "nodes" y "links" para crear el grafo.');
+    return;
+  }
+
+  const chartDom = document.getElementById('chart1');
+  const myChart = echarts.init(chartDom);
+
+  const option = {
+    title: {
+      text: 'Les Misérables - Grafo de Relaciones',
+      subtext: 'Ejemplo de red en ECharts',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function (params) {
+        if (params.dataType === 'node') {
+          return `${params.data.name}<br>Valor: ${params.data.value}`;
+        } else if (params.dataType === 'edge') {
+          return `Conexión<br>Valor: ${params.data.value}`;
+        }
+        return '';
+      }
+    },
+    legend: [{
+      data: ['Nodos'],
+      left: 'left'
+    }],
+    series: [{
+      type: 'graph',
+      layout: 'force',
+      force: {
+        edgeLength: 50,
+        repulsion: 100,
+        gravity: 0.1
+      },
+      data: selectedData.nodes.map(node => ({
+        id: node.id,
+        name: node.name,
+        value: node.value,
+        symbolSize: Math.sqrt(node.value) * 5,
+        itemStyle: {
+          color: node.color || '#5470C6'
+        }
+      })),
+      links: selectedData.links.map(link => ({
+        source: link.source,
+        target: link.target,
+        value: link.value
+      })),
+      roam: true,
+      label: {
+        show: true,
+        position: 'right',
+        formatter: '{b}'
+      },
+      lineStyle: {
+        color: 'source',
+        curveness: 0.3
+      }
+    }]
+  };
+
+  myChart.setOption(option);
+};
+
 
 document.getElementById('file-input').addEventListener('change', handleFileSelect);
