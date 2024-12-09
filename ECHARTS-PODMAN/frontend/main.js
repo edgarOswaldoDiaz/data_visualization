@@ -1,29 +1,71 @@
-let selectedData = []; // Datos cargados del archivo
-let availableFields = []; // Campos disponibles para graficar
-let selectedFields = []; // Campos seleccionados para graficar
+let selectedData = [];
+let availableFields = [];
+let selectedFields = [];
+let graphMode = 'select';
 
 const analyzeDataForGraphing = (data) => {
-  if (!Array.isArray(data)) {
-    console.error('Los datos no están en formato de arreglo');
+  if (!data) {
+    console.error('Los datos no están definidos.');
     return [];
   }
 
-  const extractNestedFields = (obj, prefix = '') => {
-    const fields = [];
-    for (const key in obj) {
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        fields.push(...extractNestedFields(obj[key], `${prefix}${key}.`));
-      } else {
-        fields.push(`${prefix}${key}`);
-      }
-    }
-    return fields;
-  };
+  if (!Array.isArray(data) && typeof data !== 'object') {
+    console.error('Los datos no son un arreglo ni un objeto.');
+    return [];
+  }
+  const dataArray = Array.isArray(data) ? data : [data];
 
-  // Asegurarse de que data es un arreglo
-  const fields = data.flatMap(item => extractNestedFields(item));
-  return [...new Set(fields)];
+  const hasNodesAndLinks = dataArray.some(item => item.hasOwnProperty('nodes') || item.hasOwnProperty('links'));
+
+  if (hasNodesAndLinks) {
+    const nodes = dataArray.flatMap(item => Array.isArray(item.nodes) ? item.nodes : []);
+    const links = dataArray.flatMap(item => Array.isArray(item.links) ? item.links : []);
+
+    if (!nodes.length && !links.length) {
+      console.error("No se encontraron 'nodes' ni 'links' válidos.");
+      return [];
+    }
+
+    console.log("Datos de nodes:", nodes);
+    console.log("Datos de links:", links);
+
+    const extractNestedFields = (obj, prefix = '') => {
+      const fields = [];
+      for (const key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          fields.push(...extractNestedFields(obj[key], `${prefix}${key}.`));
+        } else {
+          fields.push(`${prefix}${key}`);
+        }
+      }
+      return fields;
+    };
+
+    const otherFields = dataArray.flatMap(item => extractNestedFields(item));
+
+    return [...new Set([...otherFields, ...nodes, ...links])];
+  } else {
+    const extractNestedFields = (obj, prefix = '') => {
+      const fields = [];
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          if (typeof obj[key] === 'object' && obj[key] !== null) {
+            fields.push(...extractNestedFields(obj[key], `${prefix}${key}.`));
+          } else {
+            fields.push(`${prefix}${key}`);
+          }
+        }
+      }
+      return fields;
+    };
+
+    // Extraemos campos anidados sin 'nodes' ni 'links'
+    const otherFields = dataArray.flatMap(item => extractNestedFields(item));
+    const uniqueFields = [...new Set(otherFields)];
+    return uniqueFields;
+  }
 };
+
 
 
 
@@ -31,12 +73,6 @@ const handleFileSelect = async (event) => {
   const file = event.target.files[0];
   if (!file) {
     alert('No se ha seleccionado ningún archivo.');
-    return;
-  }
-
-  const fileExtension = file.name.split('.').pop().toLowerCase();
-  if (fileExtension !== 'json' && fileExtension !== 'parquet') {
-    alert('Solo se permiten archivos JSON o Parquet.');
     return;
   }
 
@@ -52,31 +88,234 @@ const handleFileSelect = async (event) => {
     if (!response.ok) throw new Error('Error al cargar el archivo.');
     const data = await response.json();
 
-    // Verificación de 'nodes' y 'links' en los datos
-    if (data.nodes && data.links) {
-      selectedData = data;
-      const nodes = data.nodes;
-      const links = data.links;
+    console.log("Datos cargados:", data); // Ver los datos que llegan del backend
 
-      // Procesar los datos cuando 'nodes' y 'links' están presentes
-      availableFields = analyzeDataForGraphing(nodes, links);
+    // Inspeccionar los datos completos para ver cómo están estructurados
+    if (data) {
+      console.log("Estructura completa de los datos:", data);
+
+      // Verificar si 'links' y 'nodes' existen en los datos
+      const hasLinks = Array.isArray(data.links);
+      const hasNodes = Array.isArray(data.nodes);
+
+      if (hasLinks || hasNodes) {
+        console.log("Se encontraron 'links' y/o 'nodes' en los datos.");
+      } else {
+        console.warn("No se encontraron 'links' ni 'nodes'. Procesando otros datos...");
+      }
+
+      selectedData = data;
+      availableFields = analyzeDataForGraphing(data);
       updateFieldChecklist();
       document.getElementById('chart-type-select').disabled = false;
     } else {
-      // Si el archivo no contiene 'nodes' y 'links', se procesa de otra manera
-      console.log('El archivo no contiene los campos "nodes" y "links".', data);
-      
-      // Aquí puedes implementar una lógica para manejar los datos que no tienen 'nodes' y 'links'
-      selectedData = data;  // Procesa el archivo tal como está
-      availableFields = analyzeDataForGraphing(data);  // Analiza los datos de manera alternativa
-      updateFieldChecklist();
-      document.getElementById('chart-type-select').disabled = false;
+      console.error("Los datos recibidos están vacíos o son nulos.");
+      alert('Los datos no se recibieron correctamente.');
     }
   } catch (error) {
     console.error('Error al procesar los datos:', error);
     alert('Hubo un problema al cargar el archivo.');
   }
 };
+
+const updateFieldChecklist = () => {
+  const fieldChecklist = document.getElementById('field-checklist');
+  fieldChecklist.innerHTML = '';
+
+  availableFields.forEach(field => {
+    const checkboxWrapper = document.createElement('div');
+    checkboxWrapper.className = 'form-check';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'form-check-input';
+    checkbox.id = `field-${field}`;
+    checkbox.value = field;
+    checkbox.addEventListener('change', handleFieldSelection);
+
+    const label = document.createElement('label');
+    label.className = 'form-check-label';
+    label.htmlFor = `field-${field}`;
+    label.textContent = field;
+
+    checkboxWrapper.appendChild(checkbox);
+    checkboxWrapper.appendChild(label);
+    fieldChecklist.appendChild(checkboxWrapper);
+  });
+};
+
+const handleFieldSelection = (event) => {
+  const field = event.target.value;
+  if (event.target.checked) {
+    selectedFields.push(field);
+  } else {
+    selectedFields = selectedFields.filter(f => f !== field);
+  }
+
+  console.log("Campos seleccionados:", selectedFields); // Agrega esta línea para depurar
+  renderChart(document.getElementById('chart-type-select').value); // Actualizar gráfica
+};
+
+const renderChart = (chartType) => {
+  // Validación de campos seleccionados y datos cargados
+  console.log("Modo de gráfico:", graphMode);
+  if (graphMode === 'select' && selectedFields.length === 0) {
+    alert('Selecciona campos antes de graficar.');
+    return;
+  }
+
+  if (selectedData.length === 0) {
+    alert('Carga un archivo antes de graficar.');
+    return;
+  }
+
+  const fields = graphMode === 'select' ? selectedFields : availableFields;
+  if (fields.length === 0) {
+    alert('No hay campos disponibles para graficar.');
+    return;
+  }
+  // Inicialización del gráfico
+  const chartDom = document.getElementById('chart1');
+  const myChart = echarts.init(chartDom);
+
+  let option;
+  switch (chartType) {
+    case 'bar':
+      option = getOptionChart(selectedData, fields[0]);
+      break;
+    case 'line':
+      option = getOptionChart2(selectedData, fields[0]);
+      break;
+    case 'scatter':
+      option = getOptionScatter(selectedData, fields[0], fields[1]);
+      break;
+    case 'donut':
+      option = getOptionDonut(selectedData, fields[0]);
+      break;
+    case 'boxplot':
+      option = getOptionBoxPlot(selectedData);
+      break;
+    case 'radar':
+      option = getOptionRadarChart(selectedData);
+      break;
+    case 'graph':
+      renderGraph();
+      return; // Salir después de renderizar Les Misérables
+    default:
+      alert('Selecciona un tipo de gráfica válido.');
+      return;
+  }
+
+  // Personalización de opciones comunes
+  option.toolbox = {
+    feature: {
+      restore: { title: 'Restaurar' },
+      saveAsImage: { title: 'Guardar como imagen', type: 'png' },
+      dataView: { title: 'Visualizar datos', lang: ['Vista de Datos', 'Cerrar', 'Actualizar'], readOnly: true },
+    },
+  };
+  option.selectedMode = 'single';
+
+  // Manejo de eventos de selección
+  myChart.on('select', (params) => {
+    const selectedOption = document.getElementById('edit-options').value;
+
+    if (selectedOption !== 'color') {
+      console.log('La edición de color no está activa. Ignorando la selección de punto.');
+      return;
+    }
+
+    console.log('Evento de selección detectado', params);
+    const { seriesIndex, dataIndexInside } = params;
+
+    if (seriesIndex !== undefined && dataIndexInside !== undefined) {
+      const selectedItem = myChart.getOption().series[seriesIndex].data[dataIndexInside];
+      if (selectedItem) {
+        const currentColor = selectedItem.itemStyle?.color || '#FF5733';
+        document.getElementById('new-color').value = currentColor;
+        document.getElementById('color-edit').style.display = 'block';
+        const dropdown = document.getElementById('point-select');
+        dropdown.innerHTML = '';
+        myChart.getOption().series[seriesIndex].data.forEach((item, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = `Punto ${index + 1} (X: ${item.value[0]}, Y: ${item.value[1]})`;
+          dropdown.appendChild(option);
+        });
+        window.selectedSeriesIndex = seriesIndex;
+        window.selectedDataIndex = dataIndexInside;
+        dropdown.value = dataIndexInside;
+      } else {
+        console.log('No se pudo encontrar el punto seleccionado.');
+      }
+    } else {
+      console.log('Índice de serie o datos no válidos.');
+    }
+  });
+
+  myChart.setOption(option);
+
+  // Agregar ícono de edición
+  const editIconWrapper = document.createElement('div');
+  editIconWrapper.style.position = 'absolute';
+  editIconWrapper.style.top = '30px';
+  editIconWrapper.style.right = '5px';
+  editIconWrapper.style.cursor = 'pointer';
+
+  const editIcon = document.createElement('i');
+  editIcon.className = 'fas fa-edit';
+  editIcon.style.color = 'gray';
+
+  const tooltip = document.createElement('span');
+  tooltip.textContent = 'Editar';
+  tooltip.style.position = 'absolute';
+  tooltip.style.color = '#61e4e6';
+  tooltip.style.backgroundColor = 'white';
+  tooltip.style.padding = '5px';
+  tooltip.style.borderRadius = '4px';
+  tooltip.style.fontSize = '12px';
+  tooltip.style.whiteSpace = 'nowrap';
+  tooltip.style.top = '15px';
+  tooltip.style.right = '0';
+  tooltip.style.visibility = 'hidden';
+  tooltip.style.opacity = '0';
+  tooltip.style.transition = 'visibility 0s, opacity 0.3s ease-in-out';
+
+  editIconWrapper.addEventListener('mouseenter', () => {
+    tooltip.style.visibility = 'visible';
+    tooltip.style.opacity = '1';
+  });
+  editIconWrapper.addEventListener('mouseleave', () => {
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.opacity = '0';
+  });
+
+  editIconWrapper.appendChild(editIcon);
+  editIconWrapper.appendChild(tooltip);
+  editIcon.addEventListener('click', () => {
+    showEditForm(chartDom.id);
+  });
+
+  chartDom.appendChild(editIconWrapper);
+};
+
+
+document.getElementById('chart-type-select').addEventListener('change', () => {
+  const chartType = document.getElementById('chart-type-select').value;
+  renderChart(chartType);
+});
+
+// Cambio entre los modos de graficar
+document.getElementById('graph-mode').addEventListener('change', (event) => {
+  graphMode = event.target.value;
+  if (graphMode === 'all') {
+    document.getElementById('field-checklist-container').style.display = 'none';
+  } else {
+    document.getElementById('field-checklist-container').style.display = 'block';
+  }
+  renderChart(document.getElementById('chart-type-select').value); // Refrescar gráfica con el nuevo modo
+});
+
 
 
 // Manejar el cambio de opción en el menú de edición
@@ -135,198 +374,10 @@ function closeEditForm() {
   document.getElementById("chart-container").style.display = "none";
 }
 
-
-
-// Actualizar las opciones del checklist con campos gráficables
-const updateFieldChecklist = () => {
-  const fieldChecklist = document.getElementById('field-checklist');
-  fieldChecklist.innerHTML = '';
-
-  availableFields.forEach(field => {
-    const checkboxWrapper = document.createElement('div');
-    checkboxWrapper.className = 'form-check';
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'form-check-input';
-    checkbox.id = `field-${field}`;
-    checkbox.value = field;
-    checkbox.addEventListener('change', handleFieldSelection);
-
-    const label = document.createElement('label');
-    label.className = 'form-check-label';
-    label.htmlFor = `field-${field}`;
-    label.textContent = field;
-
-    checkboxWrapper.appendChild(checkbox);
-    checkboxWrapper.appendChild(label);
-    fieldChecklist.appendChild(checkboxWrapper);
-  });
-};
-
-const handleFieldSelection = (event) => {
-  const field = event.target.value;
-  if (event.target.checked) {
-    selectedFields.push(field);
-  } else {
-    selectedFields = selectedFields.filter(f => f !== field);
-  }
-};
-
 document.getElementById('chart-type-select').addEventListener('change', () => {
   const chartType = document.getElementById('chart-type-select').value;
   renderChart(chartType);
 });
-
-
-const renderChart = (chartType, fields = selectedFields) => {
-  if (fields.length === 0 || selectedData.length === 0) {
-    alert('Selecciona campos y un archivo antes de graficar.');
-    return;
-  }
-
-  const chartDom = document.getElementById('chart1');
-  const myChart = echarts.init(chartDom);
-
-  let option;
-  switch (chartType) {
-    case 'bar':
-      option = getOptionChart(selectedData, fields[0]);
-      break;
-    case 'line':
-      option = getOptionChart2(selectedData, fields[0]);
-      break;
-    case 'scatter':
-      option = getOptionScatter(selectedData, fields[0], fields[1]);
-      break;
-    case 'donut':
-      option = getOptionDonut(selectedData, fields[0]);
-      break;
-    case 'boxplot':
-      option = getOptionBoxPlot(selectedData);
-      break;
-    case 'stackedBar':
-      option = getOptionStackedBarChart(selectedData, fields[0], fields[1]);
-      break;
-    case 'radar':
-      option = getOptionRadarChart(selectedData);
-      break;
-    case 'les-miserables': // Nuevo caso para Les Misérables
-      renderLesMiserablesGraph();
-      break;
-    default:
-      alert('Selecciona un tipo de gráfica válido.');
-      return;
-  }
-
-  option.toolbox = {
-    feature: {
-      restore: {
-        title: "Restaurar"
-      },
-      saveAsImage: {
-        title: "Guardar como imagen",
-        type: "png"
-      },
-      dataView: {
-        title: "Visualizar datos",
-        lang: ['Vista de Datos', 'Cerrar', 'Actualizar'],
-        readOnly: true
-      }
-    }
-  };
-  option.selectedMode = 'single'; 
-
-  myChart.on('select', (params) => {
-    const selectedOption = document.getElementById("edit-options").value;
-  
-    if (selectedOption !== "color") {
-      console.log('La edición de color no está activa. Ignorando la selección de punto.');
-      return;
-    }
-  
-    console.log('Evento de selección detectado');
-    console.log('Parámetros recibidos:', params);
-  
-    const seriesIndex = params.seriesIndex;
-    const dataIndexInside = params.dataIndexInside;
-  
-    if (seriesIndex !== undefined && dataIndexInside !== undefined) {
-      const selectedItem = myChart.getOption().series[seriesIndex].data[dataIndexInside];
-  
-      if (selectedItem) {
-        console.log('Punto seleccionado:', selectedItem);
-        const currentColor = selectedItem.itemStyle && selectedItem.itemStyle.color ? selectedItem.itemStyle.color : "#FF5733";
-        console.log('Color actual del punto:', currentColor);
-        document.getElementById("new-color").value = currentColor;
-        document.getElementById("color-edit").style.display = "block";
-        const dropdown = document.getElementById("point-select");
-        dropdown.innerHTML = '';
-        myChart.getOption().series[seriesIndex].data.forEach((item, index) => {
-          const option = document.createElement("option");
-          option.value = index;
-          option.textContent = `Punto ${index + 1} (X: ${item.value[0]}, Y: ${item.value[1]})`;
-          dropdown.appendChild(option);
-        });
-        window.selectedSeriesIndex = seriesIndex;
-        window.selectedDataIndex = dataIndexInside;
-        dropdown.value = dataIndexInside;
-      } else {
-        console.log('No se pudo encontrar el punto seleccionado.');
-      }
-    } else {
-      console.log('Índice de serie o datos no válidos.');
-    }
-  });
- 
-
-  myChart.setOption(option);
-
-  const editIconWrapper = document.createElement('div');
-editIconWrapper.style.position = 'absolute';
-editIconWrapper.style.top = '30px';
-editIconWrapper.style.right = '5px';
-editIconWrapper.style.cursor = 'pointer';
-
-// Estilo para el ícono
-const editIcon = document.createElement('i');
-editIcon.className = 'fas fa-edit';
-editIcon.style.color = 'gray'; // Color consistente con los íconos "feature"
-
-const tooltip = document.createElement('span');
-tooltip.textContent = 'Editar';
-tooltip.style.position = 'absolute';
-tooltip.style.color = ' #61e4e6'; 
-tooltip.style.backgroundColor = 'white';
-tooltip.style.padding = '5px';
-tooltip.style.borderRadius = '4px';
-tooltip.style.fontSize = '12px';
-tooltip.style.whiteSpace = 'nowrap';
-tooltip.style.top = '15px';
-tooltip.style.right = '0';
-tooltip.style.visibility = 'hidden';
-tooltip.style.opacity = '0';
-tooltip.style.transition = 'visibility 0s, opacity 0.3s ease-in-out';
-
-editIconWrapper.addEventListener('mouseenter', () => {
-  tooltip.style.visibility = 'visible';
-  tooltip.style.opacity = '1';
-});
-editIconWrapper.addEventListener('mouseleave', () => {
-  tooltip.style.visibility = 'hidden';
-  tooltip.style.opacity = '0';
-});
-
-editIconWrapper.appendChild(editIcon);
-editIconWrapper.appendChild(tooltip);
-editIcon.addEventListener('click', () => {
-  showEditForm(chartDom.id);
-});
-
-chartDom.appendChild(editIconWrapper);
-
-  
-};
 
 const getOptionScatter = (data, xField, yField) => {
   const colorPalette = ['#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE'];
@@ -446,35 +497,6 @@ const getOptionDonut = (data, field) => {
   };
 };
 
-// Gráfico de barras apiladas
-const getOptionStackedBarChart = (data, xField, yField) => {
-  const categories = [...new Set(data.map(item => item[xField]))];
-  const seriesData = [...new Set(data.map(item => item[yField]))].map(y => {
-    return {
-      name: y,
-      type: 'bar',
-      stack: 'total',
-      data: categories.map(c => data.filter(item => item[xField] === c && item[yField] === y).length),
-    };
-  });
-
-  return {
-    title: { text: `Gráfico de Barras Apiladas: ${xField}` },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      formatter: function (params) {
-        const category = params[0].name;
-        const value = params.reduce((acc, item) => acc + item.value, 0);
-        return `${category}: ${value}`;
-      }
-    },
-    xAxis: { type: 'category', data: categories },
-    yAxis: { type: 'value' },
-    series: seriesData,
-  };
-};
-
 const getOptionRadarChart = (data) => {
   const categories = Object.keys(data[0]);
   const values = categories.map(c => data.map(d => d[c]));
@@ -492,31 +514,7 @@ const getOptionRadarChart = (data) => {
   };
 };
 
-const getOptionGeoMap = (data) => {
-  const locations = [...new Set(data.map(item => item['Ubicación']))];
-  const values = locations.map(location => data.filter(item => item['Ubicación'] === location).length);
-
-  return {
-    title: { text: 'Distribución Geoespacial' },
-    tooltip: {},
-    geo: {
-      map: 'world',
-      roam: true
-    },
-    series: [{
-      name: 'Ubicación',
-      type: 'map',
-      mapType: 'world',
-      label: { show: true },
-      data: locations.map((location, index) => ({
-        name: location,
-        value: values[index]
-      }))
-    }]
-  };
-};
-
-const renderLesMiserablesGraph = () => {
+const renderGraph = () => {
   // Verifica los datos cargados
   console.log('Datos seleccionados:', selectedData);
 
@@ -530,7 +528,7 @@ const renderLesMiserablesGraph = () => {
 
   const option = {
     title: {
-      text: 'Les Misérables - Grafo de Relaciones',
+      text: 'Grafo',
       subtext: 'Ejemplo de red en ECharts',
       left: 'center'
     },
@@ -564,28 +562,46 @@ const renderLesMiserablesGraph = () => {
         symbolSize: Math.sqrt(node.value) * 5,
         itemStyle: {
           color: node.color || '#5470C6'
+        },
+        label: {
+          show: true,
+          position: 'right',
+          formatter: '{b}'
+        },
+        emphasis: {
+          itemStyle: {
+            color: '#ff6347',  // Color al hacer hover sobre el nodo
+            borderWidth: 2,
+            borderColor: '#ff6347'
+          },
+          label: {
+            show: true,
+            color: '#ff6347'  // Color de la etiqueta cuando se hace hover sobre el nodo
+          }
         }
       })),
       links: selectedData.links.map(link => ({
         source: link.source,
         target: link.target,
-        value: link.value
+        value: link.value,
+        lineStyle: {
+          color: 'source',
+          curveness: 0.3
+        },
+        emphasis: {
+          lineStyle: {
+            color: '#ff6347',  // Resalta la línea en rojo cuando se pasa el cursor
+            width: 5
+          }
+        }
       })),
-      roam: true,
-      label: {
-        show: true,
-        position: 'right',
-        formatter: '{b}'
-      },
-      lineStyle: {
-        color: 'source',
-        curveness: 0.3
-      }
+      roam: true
     }]
   };
 
   myChart.setOption(option);
 };
+
 
 
 document.getElementById('file-input').addEventListener('change', handleFileSelect);
