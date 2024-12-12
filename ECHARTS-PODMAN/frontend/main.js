@@ -1,6 +1,8 @@
 let selectedData = [];
 let availableFields = [];
 let selectedFields = [];
+let selectEjeX = [];
+let selectEjeY = [];
 let graphMode = 'select';
 
 const analyzeDataForGraphing = (data) => {
@@ -65,9 +67,6 @@ const analyzeDataForGraphing = (data) => {
     return uniqueFields;
   }
 };
-
-
-
 
 const handleFileSelect = async (event) => {
   const file = event.target.files[0];

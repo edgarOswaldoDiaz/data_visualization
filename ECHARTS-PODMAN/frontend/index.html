@@ -18,25 +18,10 @@
         <input type="file" id="file-input" class="form-control" accept=".json, .parquet">
       </div>
 
-      <!-- Selección de modo de graficar -->
-      <div class="mb-3">
-        <label for="graph-mode" class="form-label">Modo de graficar:</label>
-        <select id="graph-mode" class="form-select">
-          <option value="select">Seleccionar campos</option>
-          <option value="all">Todos los datos</option>
-        </select>
-      </div>
-
-      <!-- Selección de campos -->
-      <div id="field-checklist-container" class="mb-3">
-        <label for="field-checklist" class="form-label">Seleccionar campos para graficar:</label>
-        <div id="field-checklist" class="form-check"></div>
-      </div>
-
       <!-- Selección del tipo de gráfica -->
       <div class="mb-3">
         <label for="chart-type-select" class="form-label">Seleccionar tipo de gráfica:</label>
-        <select id="chart-type-select" class="form-select" disabled>
+        <select id="chart-type-select" class="form-select">
           <option value="bar">Gráfica de Barras</option>
           <option value="line">Gráfica de Líneas</option>
           <option value="scatter">Gráfica de Dispersión</option>
@@ -44,6 +29,18 @@
           <option value="boxplot">Gráfico de Caja</option>
           <option value="radar">Gráfica de Radar</option>
           <option value="graph">Gráfica de Grafo</option>
+        </select>
+      </div>
+
+      <!-- Selección de ejes -->
+      <div id="axis-selection" class="mb-3">
+        <label for="x-axis-select" class="form-label">Seleccionar eje X:</label>
+        <select id="x-axis-select" class="form-select">
+          <!-- Opciones dinámicas -->
+        </select>
+        <label for="y-axis-select" class="form-label mt-3">Seleccionar eje Y:</label>
+        <select id="y-axis-select" class="form-select">
+          <!-- Opciones dinámicas -->
         </select>
       </div>
 
@@ -80,7 +77,6 @@
         </div>
       </div>
     </div>
-
     <!-- ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
     <!-- main.js -->
